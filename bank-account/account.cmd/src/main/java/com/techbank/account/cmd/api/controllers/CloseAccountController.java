@@ -4,7 +4,6 @@ import com.techbank.account.cmd.api.commands.CloseAccountCommand;
 import com.techbank.account.common.dto.BaseResponse;
 import com.techbank.cqrs.core.exceptions.AggregateNotFoundException;
 import com.techbank.cqrs.core.infrastructure.CommandDispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,13 +18,16 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping(path = "/api/v1/closeBankAccount")
 public class CloseAccountController {
-    private final Logger logger = Logger.getLogger(WithdrawFundsController.class.getName());
+    private final Logger logger = Logger.getLogger(CloseAccountController.class.getName());
 
-    @Autowired
-    private CommandDispatcher commandDispatcher;
+    private final CommandDispatcher commandDispatcher;
+
+    public CloseAccountController(CommandDispatcher commandDispatcher) {
+        this.commandDispatcher = commandDispatcher;
+    }
 
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<BaseResponse> closeAccount(@PathVariable(value = "id") String id) {
+    public ResponseEntity<BaseResponse> closeAccount(@PathVariable String id) {
         try {
             commandDispatcher.send(new CloseAccountCommand(id));
             return new ResponseEntity<>(new BaseResponse("Bank account closure request successfully completed!"), HttpStatus.OK);
@@ -33,7 +35,7 @@ public class CloseAccountController {
             logger.log(Level.WARNING, MessageFormat.format("Client made a bad request - {0}.", e.toString()));
             return new ResponseEntity<>(new BaseResponse(e.toString()), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
-            var safeErrorMessage = MessageFormat.format("Error while processing request to close bank account with id - {0}.", id);
+            var safeErrorMessage = "Error while processing request to close bank account.";
             logger.log(Level.SEVERE, safeErrorMessage, e);
             return new ResponseEntity<>(new BaseResponse(safeErrorMessage), HttpStatus.INTERNAL_SERVER_ERROR);
         }

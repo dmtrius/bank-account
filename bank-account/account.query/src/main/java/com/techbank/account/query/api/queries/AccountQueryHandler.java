@@ -4,7 +4,6 @@ import com.techbank.account.query.api.dto.EqualityType;
 import com.techbank.account.query.domain.AccountRepository;
 import com.techbank.account.query.domain.BankAccount;
 import com.techbank.cqrs.core.domain.BaseEntity;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,8 +11,11 @@ import java.util.List;
 
 @Service
 public class AccountQueryHandler implements QueryHandler {
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+
+    public AccountQueryHandler(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     @Override
     public List<BaseEntity> handle(FindAllAccountsQuery query) {
@@ -47,9 +49,8 @@ public class AccountQueryHandler implements QueryHandler {
 
     @Override
     public List<BaseEntity> handle(FindAccountWithBalanceQuery query) {
-        List<BaseEntity> bankAccountsList = query.getEqualityType() == EqualityType.GREATER_THAN
+        return query.getEqualityType() == EqualityType.GREATER_THAN
                 ? accountRepository.findByBalanceGreaterThan(query.getBalance())
                 : accountRepository.findByBalanceLessThan(query.getBalance());
-        return bankAccountsList;
     }
 }

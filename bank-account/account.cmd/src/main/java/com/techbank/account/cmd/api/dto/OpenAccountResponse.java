@@ -2,7 +2,9 @@ package com.techbank.account.cmd.api.dto;
 
 import com.techbank.account.common.dto.BaseResponse;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class OpenAccountResponse extends BaseResponse {
     private String id;

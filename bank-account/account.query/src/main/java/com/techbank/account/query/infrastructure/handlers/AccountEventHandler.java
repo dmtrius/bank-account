@@ -6,13 +6,16 @@ import com.techbank.account.common.events.FundsDepositedEvent;
 import com.techbank.account.common.events.FundsWithdrawnEvent;
 import com.techbank.account.query.domain.AccountRepository;
 import com.techbank.account.query.domain.BankAccount;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AccountEventHandler implements EventHandler {
-    @Autowired
-    private AccountRepository accountRepository;
+
+    private final AccountRepository accountRepository;
+
+    public AccountEventHandler(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
 
     @Override
     public void on(AccountOpenedEvent event) {
@@ -46,6 +49,7 @@ public class AccountEventHandler implements EventHandler {
         }
         var currentBalance = bankAccount.get().getBalance();
         var latestBalance = currentBalance - event.getAmount();
+        bankAccount.get().setBalance(latestBalance);
         accountRepository.save(bankAccount.get());
     }
 

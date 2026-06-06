@@ -6,22 +6,16 @@ import com.techbank.account.common.events.AccountOpenedEvent;
 import com.techbank.account.common.events.FundsDepositedEvent;
 import com.techbank.account.common.events.FundsWithdrawnEvent;
 import com.techbank.cqrs.core.domain.AggregateRoot;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+@Getter
 @NoArgsConstructor
 public class AccountAggregate extends AggregateRoot {
     private Boolean active;
     private double balance;
-
-    public double getBalance() {
-        return this.balance;
-    }
-
-    public Boolean getActive() {
-        return this.active;
-    }
 
     public AccountAggregate(OpenAccountCommand command) {
         raiseEvent(AccountOpenedEvent.builder()
@@ -33,6 +27,7 @@ public class AccountAggregate extends AggregateRoot {
                     .build());
     }
 
+    @SuppressWarnings("unused")
     public void apply(AccountOpenedEvent event) {
         this.id = event.getId();
         this.active = true;
@@ -52,6 +47,7 @@ public class AccountAggregate extends AggregateRoot {
                     .build());
     }
 
+    @SuppressWarnings("unused")
     public void apply(FundsDepositedEvent event) {
         this.id = event.getId();
         this.balance += event.getAmount();
@@ -67,6 +63,7 @@ public class AccountAggregate extends AggregateRoot {
                     .build());
     }
 
+    @SuppressWarnings("unused")
     public void apply(FundsWithdrawnEvent event) {
         this.id = event.getId();
         this.balance -= event.getAmount();
@@ -81,6 +78,7 @@ public class AccountAggregate extends AggregateRoot {
                     .build());
     }
 
+    @SuppressWarnings("unused")
     public void apply(AccountClosedEvent event) {
         this.id = event.getId();
         this.active = false;

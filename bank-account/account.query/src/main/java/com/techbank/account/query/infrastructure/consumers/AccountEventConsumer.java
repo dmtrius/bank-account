@@ -5,7 +5,6 @@ import com.techbank.account.common.events.AccountOpenedEvent;
 import com.techbank.account.common.events.FundsDepositedEvent;
 import com.techbank.account.common.events.FundsWithdrawnEvent;
 import com.techbank.account.query.infrastructure.handlers.EventHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -13,8 +12,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AccountEventConsumer implements EventConsumer {
-    @Autowired
-    private EventHandler eventHandler;
+    private final EventHandler eventHandler;
+
+    public AccountEventConsumer(EventHandler eventHandler) {
+        this.eventHandler = eventHandler;
+    }
 
     @KafkaListener(topics = "AccountOpenedEvent", groupId = "${spring.kafka.consumer.group-id}")
     @Override

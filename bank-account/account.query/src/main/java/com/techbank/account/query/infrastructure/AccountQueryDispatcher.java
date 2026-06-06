@@ -24,12 +24,12 @@ public class AccountQueryDispatcher implements QueryDispatcher {
     @Override
     public <U extends BaseEntity> List<U> send(BaseQuery query) {
         var handlers = routes.get(query.getClass());
-        if (handlers == null || handlers.size() <= 0) {
+        if (handlers == null || handlers.isEmpty()) {
             throw new RuntimeException("No command handler was registered!");
         }
         if (handlers.size() > 1) {
             throw new RuntimeException("Cannot send command to more than one handler!");
         }
-        return handlers.get(0).handle(query);
+        return handlers.getFirst().handle(query);
     }
 }

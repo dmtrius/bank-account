@@ -1,11 +1,8 @@
 package com.techbank.account.cmd.api.controllers;
 
-import com.techbank.account.cmd.api.commands.OpenAccountCommand;
 import com.techbank.account.cmd.api.commands.RestoreReadDbCommand;
-import com.techbank.account.cmd.api.dto.OpenAccountResponse;
 import com.techbank.account.common.dto.BaseResponse;
 import com.techbank.cqrs.core.infrastructure.CommandDispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,8 +18,11 @@ import java.util.logging.Logger;
 public class RestoreReadDbController {
     private final Logger logger = Logger.getLogger(RestoreReadDbController.class.getName());
 
-    @Autowired
-    private CommandDispatcher commandDispatcher;
+    private final CommandDispatcher commandDispatcher;
+
+    public RestoreReadDbController(CommandDispatcher commandDispatcher) {
+        this.commandDispatcher = commandDispatcher;
+    }
 
     @PostMapping
     public ResponseEntity<BaseResponse> restoreReadDb() {

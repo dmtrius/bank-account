@@ -8,9 +8,9 @@ import com.techbank.account.query.api.queries.FindAccountWithBalanceQuery;
 import com.techbank.account.query.api.queries.FindAllAccountsQuery;
 import com.techbank.account.query.domain.BankAccount;
 import com.techbank.cqrs.core.infrastructure.QueryDispatcher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,21 +26,17 @@ import java.util.logging.Logger;
 public class AccountLookupController {
     private final Logger logger = Logger.getLogger(AccountLookupController.class.getName());
 
-    @Autowired
-    private QueryDispatcher queryDispatcher;
+    private final QueryDispatcher queryDispatcher;
+
+    public AccountLookupController(QueryDispatcher queryDispatcher) {
+        this.queryDispatcher = queryDispatcher;
+    }
 
     @GetMapping(path = "/")
     public ResponseEntity<AccountLookupResponse> getAllAccounts() {
         try {
             List<BankAccount> accounts = queryDispatcher.send(new FindAllAccountsQuery());
-            if (accounts == null || accounts.size() == 0) {
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-            }
-            var response = AccountLookupResponse.builder()
-                    .accounts(accounts)
-                    .message(MessageFormat.format("Successfully returned {0} bank account(s)!", accounts.size()))
-                    .build();
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return getAccountLookupResponseResponseEntity(accounts);
         } catch (Exception e) {
             var safeErrorMessage = "Failed to complete get all accounts request!";
             logger.log(Level.SEVERE, safeErrorMessage, e);
@@ -48,11 +44,23 @@ public class AccountLookupController {
         }
     }
 
+    @NonNull
+    private ResponseEntity<AccountLookupResponse> getAccountLookupResponseResponseEntity(List<BankAccount> accounts) {
+        if (accounts == null || accounts.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+        var response = AccountLookupResponse.builder()
+                .accounts(accounts)
+                .message(MessageFormat.format("Successfully returned {0} bank account(s)!", accounts.size()))
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping(path = "/byId/{id}")
-    public ResponseEntity<AccountLookupResponse> getAccountById(@PathVariable(value = "id") String id) {
+    public ResponseEntity<AccountLookupResponse> getAccountById(@PathVariable String id) {
         try {
             List<BankAccount> accounts = queryDispatcher.send(new FindAccountByIdQuery(id));
-            if (accounts == null || accounts.size() == 0) {
+            if (accounts == null || accounts.isEmpty()) {
                 return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
             }
             var response = AccountLookupResponse.builder()
@@ -68,10 +76,10 @@ public class AccountLookupController {
     }
 
     @GetMapping(path = "/byHolder/{accountHolder}")
-    public ResponseEntity<AccountLookupResponse> getAccountByHolder(@PathVariable(value = "accountHolder") String accountHolder) {
+    public ResponseEntity<AccountLookupResponse> getAccountByHolder(@PathVariable String accountHolder) {
         try {
             List<BankAccount> accounts = queryDispatcher.send(new FindAccountByHolderQuery(accountHolder));
-            if (accounts == null || accounts.size() == 0) {
+            if (accounts == null || accounts.isEmpty()) {
                 return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
             }
             var response = AccountLookupResponse.builder()
@@ -87,18 +95,11 @@ public class AccountLookupController {
     }
 
     @GetMapping(path = "/withBalance/{equalityType}/{balance}")
-    public ResponseEntity<AccountLookupResponse> getAccountWithBalance(@PathVariable(value = "equalityType") EqualityType equalityType,
-                                                                       @PathVariable(value = "balance") double balance) {
+    public ResponseEntity<AccountLookupResponse> getAccountWithBalance(@PathVariable EqualityType equalityType,
+                                                                       @PathVariable double balance) {
         try {
             List<BankAccount> accounts = queryDispatcher.send(new FindAccountWithBalanceQuery(equalityType, balance));
-            if (accounts == null || accounts.size() == 0) {
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-            }
-            var response = AccountLookupResponse.builder()
-                    .accounts(accounts)
-                    .message(MessageFormat.format("Successfully returned {0} bank account(s)!", accounts.size()))
-                    .build();
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            return getAccountLookupResponseResponseEntity(accounts);
         } catch (Exception e) {
             var safeErrorMessage = "Failed to complete get accounts with balance request!";
             logger.log(Level.SEVERE, safeErrorMessage, e);

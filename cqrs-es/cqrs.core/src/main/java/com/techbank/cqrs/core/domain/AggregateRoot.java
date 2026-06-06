@@ -1,6 +1,8 @@
 package com.techbank.cqrs.core.domain;
 
 import com.techbank.cqrs.core.events.BaseEvent;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -9,23 +11,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class AggregateRoot {
+    @Getter
     protected String id;
+    @Getter
+    @Setter
     private int version = -1;
 
     private final List<BaseEvent> changes = new ArrayList<>();
     private final Logger logger = Logger.getLogger(AggregateRoot.class.getName());
-
-    public String getId() {
-        return this.id;
-    }
-
-    public int getVersion() {
-        return this.version;
-    }
-
-    public void setVersion(int version) {
-        this.version = version;
-    }
 
     public List<BaseEvent> getUncommittedChanges() {
         return this.changes;
