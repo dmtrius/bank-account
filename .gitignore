@@ -33,3 +33,4 @@ replay_pid*
 out
 gen
 /.myollamaenhancer/duckdb/knowledge_base.duckdb
+/.fastRequest
